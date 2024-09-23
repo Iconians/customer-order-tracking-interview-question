@@ -1,0 +1,15 @@
+{
+
+  "dependencies": {
+    "csv-parser": "^3.0.0",
+    "fs": "^0.0.1-security",
+    "typescript": "^5.6.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.6.1",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.7.0"
+  }
+}
+
+
