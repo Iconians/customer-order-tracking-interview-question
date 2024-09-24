@@ -49,6 +49,10 @@ fs.createReadStream("orders.csv")
     // console.log(result);
 
     // 2. **Find the top 5 customers who spent the most** and display their `customer_id` along with their `total_spent`.
+    const top5 = result
+      .sort((a, b) => b.total_spent - a.total_spent)
+      .slice(0, 5);
+    console.log(top5);
   });
 
 // ## Additional Requirements
