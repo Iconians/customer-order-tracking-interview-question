@@ -1,17 +1,23 @@
 const fs = require("fs");
 const csv = require("csv-parser");
 
+//   `order_id`
+// - `customer_id`
+// - `order_date`
+// - `product_id`
+// - `quantity`
+// - `price_per_unit`
+
 type CustomerOrder = {
-  customer_id: string;
   order_id: string;
-  product_id: string;
-  quantity: number;
-  price: number;
-  order_date: string;
+  customer_id: string;
+  order_date: string; //(date in YYYY-MM-DD format): Date when the order was placed
+  product_id: string; // : Unique identifier for the product ordered
+  quantity: number; // : Number of units ordered
+  price_per_unit: number; //: Price per single unit of the product
 };
 
 const orders = new Map<string, CustomerOrder[]>();
-// const orders = [];
 
 fs.createReadStream("orders.csv")
   .pipe(csv())
@@ -23,7 +29,26 @@ fs.createReadStream("orders.csv")
   })
   .on("end", () => {
     console.log("CSV file successfully processed");
-    console.log(orders);
+    // ## Part 1: Total Expenditure per Customer
+
+    // 1. **Calculate the total expenditure for each customer** across all their orders.
+    // Output the result as a list of dictionaries or a DataFrame containing `customer_id` and `total_spent`.
+    const totalSpent = new Map<string, number>();
+    for (const [customer_id, customerOrders] of orders) {
+      const total = customerOrders.reduce(
+        (acc, order) => acc + order.price_per_unit * order.quantity,
+        0
+      );
+      totalSpent.set(customer_id, parseFloat(total.toFixed(2)));
+    }
+
+    const result = Array.from(totalSpent, ([customer_id, total_spent]) => ({
+      customer_id,
+      total_spent,
+    }));
+    // console.log(result);
+
+    // 2. **Find the top 5 customers who spent the most** and display their `customer_id` along with their `total_spent`.
   });
 
 // ## Additional Requirements
@@ -31,13 +56,8 @@ fs.createReadStream("orders.csv")
 // 1. **I want to see your commits.** Please ensure that your commits are broken up and clearly labeled for each of the requirements.
 
 // 2. Provide a short summary of your approach, including **time and space complexity considerations**.
-
-// ## Part 1: Total Expenditure per Customer
-
-// 1. **Calculate the total expenditure for each customer** across all their orders.
-// Output the result as a list of dictionaries or a DataFrame containing `customer_id` and `total_spent`.
-
-// 2. **Find the top 5 customers who spent the most** and display their `customer_id` along with their `total_spent`.
+// I used a map to store the orders for each customer. The time complexity for reading the CSV file is O(n) where n is the number of rows in the file.
+// The space complexity is O(n) instead of an array of orders for each customer which would be a higher time complexity for the searches I need to do.
 
 // ## Part 2: Order Frequency and Product Popularity
 
