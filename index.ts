@@ -73,17 +73,37 @@ const partTwo = () => {
       order_count: customerOrders.length,
     })
   );
-  // console.log(highestOrderCount);
+
   const maxOrderCount = Math.max(
     ...highestOrderCount.map((x) => x.order_count)
   );
-  console.log(maxOrderCount);
+
   const highestOrderCustomers = highestOrderCount.filter(
     (x) => x.order_count === maxOrderCount
   );
-  console.log(highestOrderCustomers);
+  // console.log(highestOrderCustomers);
 
   // 2. **Calculate the most popular product** (by number of units sold). Output the `product_id` and the total units sold.
+  const allOrders = Array.from(orders.values()).flatMap(
+    (customerOrders) => customerOrders
+  );
+
+  const productSales = allOrders.reduce((acc, order) => {
+    acc.set(
+      order.product_id,
+      (acc.get(order.product_id) || 0) + order.quantity
+    );
+    return acc;
+  }, new Map<string, number>());
+
+  const mostPopularProduct = Array.from(
+    productSales,
+    ([product_id, units_sold]) => ({
+      product_id,
+      units_sold,
+    })
+  ).sort((a, b) => b.units_sold - a.units_sold)[0];
+  console.log(mostPopularProduct);
 };
 
 // ## Part 3: Revenue Insights
