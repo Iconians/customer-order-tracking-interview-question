@@ -1,13 +1,6 @@
 const fs = require("fs");
 const csv = require("csv-parser");
 
-//   `order_id`
-// - `customer_id`
-// - `order_date`
-// - `product_id`
-// - `quantity`
-// - `price_per_unit`
-
 type CustomerOrder = {
   order_id: string;
   customer_id: string;
@@ -103,12 +96,30 @@ const partTwo = () => {
       units_sold,
     })
   ).sort((a, b) => b.units_sold - a.units_sold)[0];
-  console.log(mostPopularProduct);
+  // console.log(mostPopularProduct);
 };
 
 // ## Part 3: Revenue Insights
 const partThree = () => {
   // 1. **Calculate the total revenue generated for each month**. Your output should display the `year-month` (e.g., `2023-07`) and the corresponding `total_revenue`.
+  const allOrders = Array.from(orders.values()).flat();
+  const monthlyRevenue = allOrders.reduce((acc, order) => {
+    const [year, month] = order.order_date.split("-");
+    const checkDates = year !== undefined && month !== undefined ? true : false;
+    let yearMonth = "";
+    checkDates ? (yearMonth = `${year}-${month}`) : (yearMonth = `${year}`);
+    acc.set(
+      yearMonth,
+      (acc.get(yearMonth) || 0) + order.price_per_unit * order.quantity
+    );
+    return acc;
+  }, new Map<string, number>());
+
+  const result = Array.from(monthlyRevenue, ([yearMonth, total_revenue]) => ({
+    yearMonth,
+    total_revenue,
+  }));
+  console.log(result);
   // 2. **Identify any customers who haven't placed an order in the last 6 months** (based on the most recent order date in the dataset).
   // List their `customer_id` and the date of their last order.
 };
@@ -128,7 +139,7 @@ const main = async () => {
   await loadData();
   partOne();
   partTwo();
-  // partThree();
+  partThree();
   // partFour();
 };
 
