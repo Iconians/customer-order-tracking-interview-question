@@ -105,9 +105,7 @@ const partThree = () => {
   const allOrders = Array.from(orders.values()).flat();
   const monthlyRevenue = allOrders.reduce((acc, order) => {
     const [year, month] = order.order_date.split("-");
-    const checkDates = year !== undefined && month !== undefined ? true : false;
-    let yearMonth = "";
-    checkDates ? (yearMonth = `${year}-${month}`) : (yearMonth = `${year}`);
+    const yearMonth = `${year}-${month}`;
     acc.set(
       yearMonth,
       (acc.get(yearMonth) || 0) + order.price_per_unit * order.quantity
@@ -119,9 +117,41 @@ const partThree = () => {
     yearMonth,
     total_revenue,
   }));
+
   console.log(result);
-  // 2. **Identify any customers who haven't placed an order in the last 6 months** (based on the most recent order date in the dataset).
-  // List their `customer_id` and the date of their last order.
+  // 2. **Identify any customers who haven't placed an order in the last 6 months** (based on the most recent order date in
+  // the dataset). List their `customer_id` and the date of their last order.
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+  const lastOrderDates = Array.from(orders.entries()).map(
+    ([customer_id, customerOrders]) => {
+      const lastOrderDate = new Date(
+        Math.max(
+          ...customerOrders.map((order) => new Date(order.order_date).getTime())
+        )
+      );
+      return {
+        customer_id,
+        last_order_date: lastOrderDate,
+      };
+    }
+  );
+
+  const inactiveCustomers = lastOrderDates.filter(
+    ({ last_order_date }) => last_order_date < sixMonthsAgo
+  );
+
+  inactiveCustomers.sort(
+    (a, b) => b.last_order_date.getTime() - a.last_order_date.getTime()
+  );
+
+  const results = inactiveCustomers.map(({ customer_id, last_order_date }) => ({
+    customer_id,
+    last_order_date: last_order_date.toISOString().slice(0, 7), // Format as YYYY-MM
+  }));
+
+  console.log(results);
 };
 
 // ## Part 4: Advanced Filtering and Querying (Bonus)
